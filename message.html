@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Bitscape</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        #gameOutput {
+            white-space: pre-line;
+            margin: 20px;
+            padding: 10px;
+            background-color: #eaeaea;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            height: 300px;
+            overflow-y: auto;
+        }
+        #gameInput {
+            margin-top: 10px;
+        }
+        input[type="text"] {
+            padding: 5px;
+            font-size: 16px;
+            width: 50%;
+        }
+        button {
+            padding: 5px 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>The Bitscape</h1>
+    <div id="gameOutput"></div>
+    <div id="gameInput">
+        <input type="text" id="userInput" placeholder="Type your command here...">
+        <button onclick="processInput()">Submit</button>
+    </div>
+    <script>
+        let gameOutput = document.getElementById("gameOutput");
+        let userInput = document.getElementById("userInput");
+        
+        let HP = 100, DMG = 100, ByteCoins = 0, level = 0, XP = 0;
+        let gamePhase = "start";
+        let headsOrTailsChoice = "";
+        let enemyOneHP = 0;
+        let isGameOver = false;
+
+        function writeOutput(text) {
+            gameOutput.textContent += text + "\n";
+            gameOutput.scrollTop = gameOutput.scrollHeight;
+        }
+
+        function processInput() {
+            if (isGameOver) return;
+            let input = userInput.value.trim();
+            userInput.value = "";
+
+            if (gamePhase === "start") {
+                writeOutput("Loading please wait...");
+                setTimeout(() => {
+                    writeOutput("Welcome to The Bitscape! It's pretty barren out here but it is home to all Bytes alike!");
+                    writeOutput("There are a few things you can do here:\n\nstats | explore");
+                    gamePhase = "menu";
+                }, 3000);
+            } else if (gamePhase === "menu") {
+                if (input === "stats") {
+                    writeOutput(`Stats:\n${HP} HP\n${DMG} DMG\n${ByteCoins} ByteCoins\nLocation: Barren Bytelands (Bitscape)`);
+                } else if (input === "explore") {
+                    writeOutput("You decide it's a good time to explore.");
+                    writeOutput("You walk across the green-lined path until you see something moving out of the corner of your eye. Would you like to inspect it?\n\nyes | no");
+                    gamePhase = "inspect";
+                } else {
+                    writeOutput("Invalid choice. Please type 'stats' or 'explore'.");
+                }
+            } else if (gamePhase === "inspect") {
+                if (input === "yes") {
+                    writeOutput("You inspect the object, as you inspect it you realize... IT'S A TRAP!\nByter attacks!!!");
+                    writeOutput("Byter flips a coin to see who goes first. Would you like heads or tails?");
+                    gamePhase = "coinFlip";
+                } else if (input === "no") {
+                    writeOutput("You decide not to inspect the object and move on. End of demo.");
+                    isGameOver = true;
+                } else {
+                    writeOutput("Invalid choice. Please type 'yes' or 'no'.");
+                }
+            } else if (gamePhase === "coinFlip") {
+                if (input === "heads" || input === "tails") {
+                    headsOrTailsChoice = input;
+                    let coinResult = Math.random() < 0.5 ? "heads" : "tails";
+                    writeOutput(`Byter flips a coin, it flies high in the air and falls. IT SAYS... ${coinResult}`);
+                    enemyOneHP = 3;
+                    gamePhase = "combat";
+                    if (coinResult === headsOrTailsChoice) {
+                        enemyOneHP--;
+                        writeOutput(`You attack dealing 1 DMG! Byter now has ${enemyOneHP} HP remaining!`);
+                    }
+                } else {
+                    writeOutput("Invalid choice. Please type 'heads' or 'tails'.");
+                }
+            } else if (gamePhase === "combat") {
+                if (enemyOneHP > 0 && HP > 0) {
+                    let byterDMG = Math.floor(Math.random() * 11) + 10;
+                    HP -= byterDMG;
+                    writeOutput(`Byter attacks dealing ${byterDMG} DMG. You have ${HP} HP remaining.`);
+                    
+                    if (HP <= 0) {
+                        writeOutput("So you died... How could you?");
+                        isGameOver = true;
+                        return;
+                    }
+
+                    enemyOneHP--;
+                    writeOutput(`You attack dealing 1 DMG! Byter now has ${enemyOneHP} HP remaining.`);
+                }
+
+                if (enemyOneHP <= 0) {
+                    writeOutput("Byter died!");
+                    XP++;
+                    ByteCoins += 10;
+                    HP = Math.min(HP + 25, 100);
+                    DMG += 10;
+                    level++;
+                    writeOutput("You leveled up! Stats increased.");
+                    writeOutput(`Stats:\n${HP} HP\n${DMG} DMG\n${ByteCoins} ByteCoins\n${XP} XP\nLevel ${level}`);
+                    gamePhase = "end";
+                }
+            } else if (gamePhase === "end") {
+                writeOutput("Thanks for playing The Bitscape Demo. The game will now close.");
+                isGameOver = true;
+            }
+        }
+
+        // Initialize game
+        writeOutput("Initializing game...");
+        setTimeout(() => processInput(), 1000);
+    </script>
+</body>
+</html>
