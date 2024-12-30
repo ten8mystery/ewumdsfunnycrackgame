@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Bitscape</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .hidden {
+            display: none;
+        }
+        .output {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to The Bitscape!</h1>
+    <div id="game">
+        <div id="output" class="output"></div>
+        <input type="text" id="userInput" placeholder="Type your choice here..." disabled />
+        <button id="submit" disabled>Submit</button>
+    </div>
+
+    <script>
+        const output = document.getElementById("output");
+        const userInput = document.getElementById("userInput");
+        const submitButton = document.getElementById("submit");
+
+        let HP = 100;
+        let step = 0;
+
+        const print = (text) => {
+            const p = document.createElement("p");
+            p.textContent = text;
+            output.appendChild(p);
+        };
+
+        const clearInput = () => {
+            userInput.value = "";
+        };
+
+        const enableInput = () => {
+            userInput.disabled = false;
+            submitButton.disabled = false;
+        };
+
+        const disableInput = () => {
+            userInput.disabled = true;
+            submitButton.disabled = true;
+        };
+
+        const countdown = async () => {
+            print("Loading please wait...");
+            for (let i = 3; i > 0; i--) {
+                print(`${i} seconds remain`);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        };
+
+        const gameSteps = async (input) => {
+            switch (step) {
+                case 0:
+                    await countdown();
+                    print("\nWelcome to The Bitscape! It's pretty barren out here but it is home to all Bytes alike!\n");
+                    print("There are a few things you can do here:");
+                    print("\nstats | explore\n");
+                    print("In order to select one of these options, simply type it under this message, remember that it's case sensitive!");
+                    step++;
+                    enableInput();
+                    break;
+
+                case 1:
+                    if (input === "stats") {
+                        print("Stats:");
+                        print(`${HP} HP`);
+                        print("1 DMG");
+                        print("No effects");
+                        print("0 Bytecoins");
+                        print("Location: Barren Bytelands (Bitscape)");
+                    } else if (input === "explore") {
+                        print("Explore selected.");
+                    } else {
+                        print("Invalid choice, please type 'stats' or 'explore'.");
+                        return;
+                    }
+                    print("You decide it's a good time to explore.");
+                    print("You walk across the green-lined path until you see something moving out of the corner of your eye, would you like to inspect it?");
+                    print("yes | no");
+                    step++;
+                    clearInput();
+                    break;
+
+                case 2:
+                    if (input === "yes") {
+                        print("You inspect the object, as you inspect it you realize... IT'S A TRAP!");
+                    } else if (input === "no") {
+                        print("You decide to leave it alone and continue your journey.");
+                    } else {
+                        print("Invalid choice, please type 'yes' or 'no'.");
+                        return;
+                    }
+                    disableInput();
+                    break;
+
+                default:
+                    print("Game over.");
+            }
+        };
+
+        submitButton.addEventListener("click", () => {
+            const input = userInput.value.trim();
+            if (input) {
+                gameSteps(input);
+                clearInput();
+            }
+        });
+
+        // Start the game
+        gameSteps();
+    </script>
+</body>
+</html>
